@@ -33,7 +33,7 @@ def Lire_Stl(titre_doc):
     newnew = []
     while len(new) != 0:
         facette = [new[0], new[1], new[2], new[3]]
-        print(facette)
+        #print(facette)
         newnew.append(facette)
         new = new[4:]
     fichier.close()
