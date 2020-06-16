@@ -30,14 +30,18 @@ def Lire_Stl(titre_doc):
         vecteur = [liste_de_valeurs[0], liste_de_valeurs[1], liste_de_valeurs[2]]
         new.append(vecteur)
         liste_de_valeurs = liste_de_valeurs[3:]
+    print("new :",new)
     newnew = []
+    vecteur_normal = []
     while len(new) != 0:
-        facette = [new[0], new[1], new[2], new[3]]
+        facette = [ new[1], new[2], new[3]]
         #print(facette)
+        vecteur_normal.append(new[0])
         newnew.append(facette)
         new = new[4:]
     fichier.close()
     print(newnew) # liste des valeurs des coordonnées des facettes
+    print(vecteur_normal)
 
 def Surface(A, B, C):
     AB = np.array([B[0]-A[0], B[1]-A[1], B[2]-A[2]])
