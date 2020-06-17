@@ -50,7 +50,7 @@ class Navire :
     def Norme(self, u):
         return (u[0]**2+u[1]**2+u[2]**2)**(1/2)
 
-    def Surface(self, facette): # ++ Calcul et renvoi la norme du vecteur surface d'une facette donnés en entrée
+    def Surface(self, facette): # Calcul et renvoi la norme du vecteur surface d'une facette donnés en entrée
         AB = np.array([facette[1][0]-facette[0][0], facette[1][1]-facette[0][1], facette[1][2]-facette[0][2]])
         AC = np.array([facette[2][0]-facette[0][0], facette[2][1]-facette[0][1], facette[2][2]-facette[0][2]])
         DsFk = self.Norme(self.ProdVect(AB, AC))/2
