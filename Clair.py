@@ -123,7 +123,7 @@ class Calcul :
 
         while abs(maxi-mini) > epsilon :    #Tant que la différence est supérieure à notre marge de précision
             compteur += 1
-            #print(">> Iteration n° ",compteur)
+            print(">> Iteration n° ",compteur)
             milieu = (maxi+mini)/2
             #print("     mini ",mini," maxi ",maxi," milieu ",milieu)
 
@@ -159,10 +159,12 @@ class Calcul :
         return mini
 
 
+
+
 #programme principal
 #print(CalculFfacette(np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 1])))
 #Lire_Stl(r"V_HULL.stl")
-Bateau = Info_fichier_stl("Mini650_HULL_Normals_Outward.stl")
+Bateau = Info_fichier_stl("Rectangular_HULL_Normals_Outward.stl")
 #Bateau2 = Info_fichier_stl("V_HULL_modif_toutes_coordonnees.stl")
 #print(Bateau.Translation(-1))
 #print(Bateau.Calculfacettes(Bateau.getf()))
@@ -171,4 +173,4 @@ Calcul1 = Calcul(Bateau.getn(),Bateau.getf())
 #print(Calcul1.Calculfacette(Bateau.getn()[0],Bateau.getf()[0]))
 #print(Bateau.getn()[0]) #On a que le vecteur grace à l'indice
 #print(Bateau.getf()[0][0])
-print(Calcul1.Dichotomie(4000,-10,50, 0.2))
+print(Calcul1.Dichotomie(4000,-10,10, 0.002))
