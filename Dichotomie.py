@@ -17,4 +17,4 @@ class D:
             return a
 
 d = D()
-print(d.dichotomie(-10,10,0.2))
+print(d.dichotomie(-10,10,0.00000000000000001))

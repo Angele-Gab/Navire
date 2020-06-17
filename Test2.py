@@ -1,12 +1,11 @@
-# numpy.stl
 import numpy as np
 import copy
 
-
 #fonctions
 
-class Navire :
-    def __init__(self,chemin):
+class Info_fichier_stl: # cette classe permet de manipuler les coordonnées des 3 points des facettes et des vecteurs normaux associés d'un objet stl donné en argument d'entrée
+
+    def __init__(self, chemin): # créer deux arguments (sous forme de listes) à l'aide du chemin de l'objet stl
         liste_de_valeurs = []
         fichier = open(chemin, "r")
         lignes = fichier.readlines() #fourni le texte en chaines de caractères
@@ -29,23 +28,22 @@ class Navire :
             liste_des_facettes.append(facette)
             liste_des_vecteurs = liste_des_vecteurs[4:]
         fichier.close()
-        self.__normal = liste_des_vecteurs_normaux
+        self._normal = liste_des_vecteurs_normaux #argument sous forme de liste des facettes. Une facette étant une liste des coordonnées des points qui la compose
         self._facette = liste_des_facettes
-        #print(self._facette)
 
     def getf(self):
         return self._facette
 
     def getn(self):
-        return self.__normal
+        return self._normal
 
-    def ProdVect(self, u,v):
+    def ProdVect(self, u, v):
         #retourne les coordonnées de w=(wx,wy,wz)=u ^v
         wx = u[1]*v[2]-u[2]*v[1] #les indices sont numérotés de 0 à 2
         wy = u[2]*v[0]-u[0]*v[2]
         wz = u[0]*v[1]-u[1]*v[0]
         w = np.array([wx, wy, wz])
-        return(w)
+        return (w)
 
     def Norme(self, u):
         return (u[0]**2+u[1]**2+u[2]**2)**(1/2)
@@ -56,25 +54,25 @@ class Navire :
         DsFk = self.Norme(self.ProdVect(AB, AC))/2
         return DsFk
 
-
     def Calculfacette(self, vecteur_normal, facette):
         ro = 1000
         g = 9.81
-        Fkx = ro*g*np.array([(facette[0][0]+facette[1][0]+facette[2][0])/3, (facette[0][1]+facette[1][1]+facette[2][1])/3, (facette[0][2]+facette[1][2]+facette[2][2])/3])[2]*self.Surface(facette)*vecteur_normal[0]
-        Fky = ro*g*np.array([(facette[0][0]+facette[1][0]+facette[2][0])/3, (facette[0][1]+facette[1][1]+facette[2][1])/3, (facette[0][2]+facette[1][2]+facette[2][2])/3])[2]*self.Surface(facette)*vecteur_normal[1]
-        Fkz = ro*g*np.array([(facette[0][0]+facette[1][0]+facette[2][0])/3, (facette[0][1]+facette[1][1]+facette[2][1])/3, (facette[0][2]+facette[1][2]+facette[2][2])/3])[2]*self.Surface(facette)*vecteur_normal[2]
+        XG = (facette[0][0]+facette[1][0]+facette[2][0])/3
+        YG = (facette[0][1]+facette[1][1]+facette[2][1])/3
+        ZG = (facette[0][2]+facette[1][2]+facette[2][2])/3
+        Fkx = -ro*g*np.array([XG,YG ,ZG ])[2]*self.Surface(facette)*(-vecteur_normal[0])  #Simplification possible en ne conservant que ZG
+        Fky = -ro*g*np.array([XG, YG, ZG])[2]*self.Surface(facette)*(-vecteur_normal[1])   #négatif car normale sortante
+        Fkz = -ro*g*np.array([XG,YG ,ZG ])[2]*self.Surface(facette)*(-vecteur_normal[2])
         return [Fkx, Fky, Fkz]
 
-    def Calculfacettes(self,facette):
+
+    def Calculfacettes(self, facettes):
         Kx = 0
         Ky = 0
         Kz = 0
-        for i in range(0, len(self.__normal)):
+        for i in range(0, len(self._normal)):
             #if self.__facette[i][0][2] > 0 or self.__facette[i][1][2] > 0 or self.__facette[i][2][2]:
-            if i == 0 :
-                print("            ",facette[i])
-            Fk = self.Calculfacette(self.__normal[i], facette[i])
-                #print(Fk)
+            Fk = self.Calculfacette(self._normal[i], facettes[i])
             Kx += Fk[0]
             Ky += Fk[1]
             Kz += Fk[2]
@@ -82,13 +80,14 @@ class Navire :
 
         return self._archimede
 
-
     def Translation(self,ecart):
         liste_facettes = self._facette
         for i in liste_facettes :
             for j in i :
                 j[2] += ecart
         return liste_facettes
+
+
 
     def TranslationListe(self,liste,ecart):
         copie = copy.deepcopy(liste)
@@ -106,39 +105,43 @@ class Navire :
         print(self._facette[0])
         listeA = copy.deepcopy(self._facette)
         listeB = copy.deepcopy(self._facette)
+        compteur = 0
         while abs(maxi-mini) > epsilon :
+            compteur += 1
+            print(">> Iteration n° ",compteur)
             milieu = (maxi+mini)/2
-            print("milieu ",milieu,"maxi ",maxi,"mini ",mini)
+            print("     mini ",mini," maxi ",maxi," milieu ",milieu)
 
             newA = self.TranslationListe(listeA,mini)
             newB = self.TranslationListe(listeB,milieu)
-            print("Premier facette A",newA[0])
-            print("Premier facette B",newB[0])
+            #print("      Premier facette A",newA[0])
+            #print("      Premier facette B",newB[0])
             FaA = self.Calculfacettes(newA)
             FaB = self.Calculfacettes(newB)
             print("   FA ", FaA, " FaB", FaB)
             norme_FaA = (FaA[0]**2+FaA[1]**2+FaA[2]**2)**(1/2)
             norme_FaB = (FaB[0]**2+FaB[1]**2+FaB[2]**2)**(1/2)
-            print("   Norme FaA ",norme_FaA," Norme FaB",norme_FaB)
+            #print("   Norme FaA ",norme_FaA," Norme FaB",norme_FaB)
             phiA = norme_FaA-Fp
             phiM = norme_FaB-Fp
 
             if phiA*phiM < 0:
-                maxi=milieu
+                maxi= milieu
             else :
                 mini= milieu
+
         return mini
-
-
 
 
 #programme principal
 #print(CalculFfacette(np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 1])))
 #Lire_Stl(r"V_HULL.stl")
-Bateau = Navire("V_HULL_modif_toutes_coordonnees.stl")
-#Bateau = Navire("Une_facette.stl")
-#print(Bateau.Calculfacettes())
-#print(Bateau._facette)
-print(Bateau.Dichotomie(4000,-100,50, 0.2))
-#print(Bateau.Translation(2))
-#print(Bateau._facette)
+Bateau = Info_fichier_stl("Une_facette.stl")
+#Bateau2 = Info_fichier_stl("V_HULL_modif_toutes_coordonnees.stl")
+#print(Bateau.Translation(-1))
+#print(Bateau.Calculfacettes(Bateau.getf()))
+#print(Bateau2.Calculfacettes())
+print(Bateau.Calculfacette(Bateau.getn()[0],Bateau.getf()[0]))
+#print(Bateau.getn()[0]) #On a que le vecteur grace à l'indice
+#print(Bateau.getf()[0][0])
+print(Bateau.Dichotomie(4000,-10,50, 0.2))
