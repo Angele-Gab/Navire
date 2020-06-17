@@ -5,7 +5,7 @@ from PySide2.QtWidgets import *
 from stl import mesh
 from mpl_toolkits import mplot3d
 from matplotlib import pyplot
-from erreur import *
+#from erreur import *
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
 
