@@ -15,18 +15,18 @@ class Info_fichier_stl: # cette classe permet de manipuler les coordonnées des 
         lignes = fichier.readlines() #fourni le texte en chaines de caractères
         lignes = lignes[1:-1]
         for i in lignes:
-            k = i.split()
+            k = i.split()     #Séparation des lignes
             for j in k:
-                if j.isalpha() == False:
+                if j.isalpha() == False:   #Stockage des valeurs numériques uniquement
                     liste_de_valeurs.append(j)
         liste_des_vecteurs = []
-        while len(liste_de_valeurs) != 0:
+        while len(liste_de_valeurs) != 0:    #Séparation des valeurs par trois pour obtenir des coordonnées de vecteurs
             vecteur = [float(liste_de_valeurs[0]), float(liste_de_valeurs[1]), float(liste_de_valeurs[2])]
             liste_des_vecteurs.append(vecteur)
             liste_de_valeurs = liste_de_valeurs[3:]
         liste_des_facettes = []
         liste_des_vecteurs_normaux = []
-        while len(liste_des_vecteurs) != 0:
+        while len(liste_des_vecteurs) != 0:   #On sépare par la suite les coordonnées des points des vecteurs normaux de chaque facette
             facette = [liste_des_vecteurs[1], liste_des_vecteurs[2], liste_des_vecteurs[3]]
             liste_des_vecteurs_normaux.append(liste_des_vecteurs[0])
             liste_des_facettes.append(facette)

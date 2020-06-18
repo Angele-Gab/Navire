@@ -14,13 +14,13 @@ class Interface(QWidget):
         QWidget.__init__(self)
 
 
-        Fichier = Info_fichier_stl(stl)
+        Fichier = Info_fichier_stl(stl)   #Récupération des données du fichier stl demandé
         liste_normales=Fichier.getn()
         liste_facettes=Fichier.getf()
         Calcul1 = Calcul(liste_normales,liste_facettes)
-        self.__equilibre = Calcul1.Dichotomie(g,masse, epsilon)[0]
-        self.__Y = Calcul1.Dichotomie(g,masse, epsilon)[1]
-        self.__X = Calcul1.Dichotomie(g,masse, epsilon)[2]
+        self.__equilibre = Calcul1.Dichotomie(g,masse, epsilon)[0]   #Récupération de la profondeur d'équilibre déterminée avec la dichotomie
+        self.__Y = Calcul1.Dichotomie(g,masse, epsilon)[1]   #Récupération de la liste des valeurs prises par la dichotomie
+        self.__X = Calcul1.Dichotomie(g,masse, epsilon)[2]   #Récupération de la liste du nombre d'itérations de la dichotomie
 
         #Partie 3D
 
@@ -42,9 +42,9 @@ class Interface(QWidget):
 
 
         self.__ax2.plot()
-        plt.title("Titre")
-        plt.xlabel("Abscisse")
-        plt.ylabel("Ordonnée")
+        plt.title("Détermination de la position d'équilibre",color = "blue")
+        plt.xlabel("Nombre d'itérations")
+        plt.ylabel("Profondeur")
         self.canvas2.draw()
         self.canvas2.setFixedSize(750,500)
 
@@ -91,7 +91,7 @@ class Interface(QWidget):
         self.fig2 = plt.figure()
         self.canvas2 = FigureCanvas(self.fig2)
         self.__ax2 = plt.axes()
-        self.__ax2.plot(self.__X, self.__Y, "b-x", color = "red")
+        self.__ax2.plot(self.__X, self.__Y, "b-x", color = "red")   #Tracé du graphique
         #self.canvas2.draw()
         self.layout.addWidget(self.canvas2,1,2,1,1)
 
