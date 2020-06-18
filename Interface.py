@@ -5,13 +5,22 @@ from PySide2.QtWidgets import *
 from stl import mesh
 from mpl_toolkits import mplot3d
 from matplotlib import pyplot
-#from erreur import *
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
+from Clair import *
 
 class Interface(QWidget):
-    def __init__(self,stl):
+    def __init__(self,stl,masse,epsilon,g):
         QWidget.__init__(self)
+
+
+        Fichier = Info_fichier_stl(stl)
+        liste_normales=Fichier.getn()
+        liste_facettes=Fichier.getf()
+        Calcul1 = Calcul(liste_normales,liste_facettes)
+        self.__equilibre = Calcul1.Dichotomie(g,masse, epsilon)[0]
+        self.__Y = Calcul1.Dichotomie(g,masse, epsilon)[1]
+        self.__X = Calcul1.Dichotomie(g,masse, epsilon)[2]
 
         #Partie 3D
 
@@ -31,10 +40,8 @@ class Interface(QWidget):
         self.canvas2 = FigureCanvas(self.fig2)
         self.__ax2 = plt.axes()
 
-        X=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
-        Y=[39240.0, -39240.0, 39240.0, -39240.0, 39240.0, 39240.0, 39240.0, -39240.0, 39240.0, 9810.0, 9810.0, -39240.0, 9810.0, -26977.5, 9810.0, -8583.75, 9810.0, 613.125, 613.125, -3985.3125, 613.125, -1686.09375, 613.125, -536.484375, 613.125, 38.3203125, 38.3203125, -249.08203125, 38.3203125, -105.380859375, 38.3203125, -33.5302734375, 38.3203125, 2.39501953125, 2.39501953125, -15.567626953125, 2.39501953125, -6.5863037109375]
 
-        self.__ax2.plot(X,Y, color = "red")
+        self.__ax2.plot()
         plt.title("Titre")
         plt.xlabel("Abscisse")
         plt.ylabel("Ordonnée")
@@ -46,7 +53,7 @@ class Interface(QWidget):
         self.layout = QGridLayout()
         self.setWindowTitle("Boat sinking interface")
         self.setFixedSize(1300, 800)
-        Icon = QIcon("Abeille_Bourbon-6455_xlarge.png")
+        Icon = QIcon("Abeille_Bourbon.png")
         self.setWindowIcon(Icon)
 
 
@@ -66,19 +73,27 @@ class Interface(QWidget):
 
 
     def buttonLoad3DClicked(self):
+
+        # 3D
         self.fig = plt.figure()
         self.canvas = FigureCanvas(self.fig)
         self.__ax.remove()
         self.__ax = plt.axes(projection='3d')
-        self.__your_mesh.translate([0, 0,-1])
+        self.__your_mesh.translate([0, 0, self.__equilibre])
         self.__ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self.__your_mesh.vectors))
         scale = self.__your_mesh.points.flatten("C")
 
         self.__ax.auto_scale_xyz(scale, scale, scale)
         self.layout.addWidget(self.canvas,1,1,1,1)
 
+        #2D
 
-
+        self.fig2 = plt.figure()
+        self.canvas2 = FigureCanvas(self.fig2)
+        self.__ax2 = plt.axes()
+        self.__ax2.plot(self.__X, self.__Y, "b-x", color = "red")
+        #self.canvas2.draw()
+        self.layout.addWidget(self.canvas2,1,2,1,1)
 
 
 
@@ -92,6 +107,10 @@ class Parametres(QWidget) :
         self.setWindowTitle("Paramétrages")
         self.setFixedSize(400, 200)
 
+        Icon = QIcon("Parametre.png")
+        self.setWindowIcon(Icon)
+
+
         self.layout = QGridLayout()
 
         self.__stl=""
@@ -99,7 +118,10 @@ class Parametres(QWidget) :
         self.__precision=""
         self.__gravite=""
 
-        self.label = QLabel("Entrez les paramètres :")
+        self.label = QLabel("Entrez les paramètres")
+        self.label.setStyleSheet("QLabel { font : 13pt ; }")
+        self.label.setAlignment(Qt.AlignCenter)
+
         self.label1= QLabel("Fichier STL :")
         self.label2= QLabel("Masse :")
         self.label3= QLabel("Précision :")
@@ -137,6 +159,15 @@ class Parametres(QWidget) :
     def getEr(self):
         return self.__erreur
 
+    def getMasse(self):
+        return self.__masse
+
+    def getGravite(self):
+        return self.__gravite
+
+    def getPrecision(self):
+        return self.__precision
+
 
     def formatstl(self,stl):
         if stl[-4:]==".stl":
@@ -146,18 +177,24 @@ class Parametres(QWidget) :
             return stl
 
     def buttonClicked(self):
+
+
         self.__stl =self.edit1.text()
         self.__masse = self.edit2.text()
         self.__precision = self.edit3.text()
         self.__gravite = self.edit4.text()
 
         if self.isEmpty(self.__stl,self.__masse,self.__precision,self.__gravite)==True:
-            self.label = QLabel("Vérifiez vos informations")
+            self.label = QLabel("Vérifiez vos informations !")
+            self.label.setStyleSheet("color : #F24C04;")
+            self.label.setAlignment(Qt.AlignCenter)
             self.layout.addWidget(self.label, 5, 0, 1, 2)
             self.setLayout(self.layout)
             return
         if self.__masse.isalpha()!=False or self.__precision.isalpha()!=False or self.__gravite.isalpha()!=False:
-            self.label = QLabel("Vérifiez vos informations")
+            self.label = QLabel("Vérifiez vos informations !")
+            self.label.setStyleSheet("color : #F24C04;")
+            self.label.setAlignment(Qt.AlignCenter)
             self.layout.addWidget(self.label, 5, 0, 1, 2)
             self.setLayout(self.layout)
             return
@@ -166,9 +203,12 @@ class Parametres(QWidget) :
 
 
 
-        self.__stl=self.formatstl(self.__stl)
-        self.__masse=float(self.__masse)
-        self.__precision=float(self.__precision)
+
+
+        self.__stl = self.formatstl(self.__stl)
+        self.__masse = float(self.__masse)
+        self.__precision = float(self.__precision)
+        self.__gravite = float(self.__gravite)
         self.close()
         self.__isClosed = 1
 
@@ -198,6 +238,7 @@ if __name__ == "__main__":
         None
 
 
-    win =Interface(winP.getSTL())
+    win =Interface(winP.getSTL(),winP.getMasse(),winP.getPrecision(),winP.getGravite())
     win.show()
     app.exec_()
+

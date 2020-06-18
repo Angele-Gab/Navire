@@ -1,6 +1,9 @@
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
+from PySide2.QtWidgets import *
+from PySide2.QtGui import QIcon
+from PySide2.QtCore import Qt
 
 #fonctions
 
@@ -65,9 +68,8 @@ class Calcul :
         DsFk = self.Norme(self.ProdVect(AB, AC))/2
         return DsFk
 
-    def Calculfacette(self, vecteur_normal, facette):    #Fonction qui calcule la poussée d'Archimède pour chaque facette
+    def Calculfacette(self,g, vecteur_normal,  facette):    #Fonction qui calcule la poussée d'Archimède pour chaque facette
         ro = 1000
-        g = 9.81
         XG = (facette[0][0]+facette[1][0]+facette[2][0])/3
         YG = (facette[0][1]+facette[1][1]+facette[2][1])/3
         ZG = (facette[0][2]+facette[1][2]+facette[2][2])/3
@@ -76,14 +78,14 @@ class Calcul :
         Fkz = -ro*g*np.array([XG,YG ,ZG ])[2]*self.Surface(facette)*(-vecteur_normal[2])
         return [Fkx, Fky, Fkz]    #Retourne les coordonnées de cette force
 
-    def Calculfacettes(self, facettes):    #Fonction qui additionne toutes les forces pour avoir la résultante finale
+    def Calculfacettes(self,g, facettes):    #Fonction qui additionne toutes les forces pour avoir la résultante finale
         Kx = 0
         Ky = 0
         Kz = 0
         for i in range(0, len(self._normale)):
             if facettes[i][0][2] <= 0 or facettes[i][1][2] <= 0 or facettes[i][2][2] <= 0:
 
-                Fk = self.Calculfacette(self._normale[i], facettes[i])
+                Fk = self.Calculfacette(g,self._normale[i], facettes[i])
                 Kx += Fk[0]
                 Ky += Fk[1]
                 Kz += Fk[2]
@@ -108,22 +110,22 @@ class Calcul :
 
     #CALCUL DE LA DICHOTOMIE
 
-    def Dichotomie(self,masse,a,b, epsilon):   #Calcul de la dichotomie, retourne la valeur mini qui correspond alors à la valeur du zéro
+    def Dichotomie(self,g,masse, epsilon):   #Calcul de la dichotomie, retourne la valeur mini qui correspond alors à la valeur du zéro
         X = []
         Y = []
         i = 0
         Fp = masse * 9.81   #Norme de la force poids
         #print("Fp ",Fp)
-        maxi = b
-        mini = a
+        maxi = 100
+        mini = -100
         #print(self._facette[0])
         listeA = copy.deepcopy(self._facette)  #Cette fonction permet de faire des copies de listes de listes
         listeB = copy.deepcopy(self._facette)
         compteur = 0
-
+        print("loading...")
         while abs(maxi-mini) > epsilon :    #Tant que la différence est supérieure à notre marge de précision
             compteur += 1
-            print(">> Iteration n° ",compteur)
+            #print(">> Iteration n° ",compteur)
             milieu = (maxi+mini)/2
             #print("     mini ",mini," maxi ",maxi," milieu ",milieu)
 
@@ -131,15 +133,15 @@ class Calcul :
             newB = self.TranslationListe(listeB,milieu)
             #print("      Premier facette A",newA[0])
             #print("      Premier facette B",newB[0])
-            FaA = self.Calculfacettes(newA)                #On calcule alors la poussé d'Archimède pour ces deux nouvelles positions
-            FaB = self.Calculfacettes(newB)
+            FaA = self.Calculfacettes(g,newA)                #On calcule alors la poussé d'Archimède pour ces deux nouvelles positions
+            FaB = self.Calculfacettes(g,newB)
             #print("   FA ", FaA, " FaB", FaB)
             norme_FaA = (FaA[0]**2+FaA[1]**2+FaA[2]**2)**(1/2)      #On calcule les normes des ces forces
             norme_FaB = (FaB[0]**2+FaB[1]**2+FaB[2]**2)**(1/2)
             #print("   Norme FaA ",norme_FaA," Norme FaB",norme_FaB)
             phiA = norme_FaA-Fp                                     #On calcule avec la fonction phi qui soustraie la norme de la force d'Archimède à celle du poids
             phiM = norme_FaB-Fp
-            print(phiM)
+            #print(phiM)
 
             if phiA*phiM < 0:                   #On regarde si la multiplication est négative (si on est bien toujours dans un intervalle comportant le zéro
 
@@ -152,11 +154,11 @@ class Calcul :
             X.append(milieu)
             Y.append(i)
             i+=1
-        X = X[1:]
+        X = X[1:]   #ON enlève le zéro d'initialisation
         Y = Y[1:]
-        plt.plot(Y,X,'b-x')
-        plt.show()
-        return mini
+
+        return mini,X,Y
+
 
 
 
@@ -164,13 +166,14 @@ class Calcul :
 #programme principal
 #print(CalculFfacette(np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 1])))
 #Lire_Stl(r"V_HULL.stl")
-Bateau = Info_fichier_stl("Rectangular_HULL_Normals_Outward.stl")
+#Bateau = Info_fichier_stl("Rectangular_HULL_Normals_Outward.stl")
 #Bateau2 = Info_fichier_stl("V_HULL_modif_toutes_coordonnees.stl")
 #print(Bateau.Translation(-1))
 #print(Bateau.Calculfacettes(Bateau.getf()))
 #print(Bateau2.Calculfacettes())
-Calcul1 = Calcul(Bateau.getn(),Bateau.getf())
+#Calcul1 = Calcul(Bateau.getn(),Bateau.getf())
 #print(Calcul1.Calculfacette(Bateau.getn()[0],Bateau.getf()[0]))
 #print(Bateau.getn()[0]) #On a que le vecteur grace à l'indice
 #print(Bateau.getf()[0][0])
-print(Calcul1.Dichotomie(4000,-10,10, 0.002))
+#print(Calcul1.Dichotomie(9.81,4000, 0.002))
+
