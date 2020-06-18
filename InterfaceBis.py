@@ -26,13 +26,21 @@ class Interface(QWidget):
 
         self.fig = plt.figure()
         self.canvas = FigureCanvas(self.fig)
+        self.canvaplan = FigureCanvas(self.fig)
         self.__ax = plt.axes(projection='3d')
+
         self.__your_mesh = mesh.Mesh.from_file(stl)
         self.__ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self.__your_mesh.vectors))
         scale = self.__your_mesh.points.flatten("C")
+
         self.__ax.auto_scale_xyz(scale, scale, scale)
+        plt.title("Représentation 3D",color = "darkcyan")
+        self.canvaplan.draw()
         self.canvas.draw()
         self.canvas.setFixedSize(500,500)
+        #self.setStyleSheet("background-image: url(Fond2jpg.jpg)")
+        self.setStyleSheet("background-color: rgb(17,69,93);")
+
 
         #Partie 2D
 
@@ -42,7 +50,7 @@ class Interface(QWidget):
 
 
         self.__ax2.plot()
-        plt.title("Détermination de la position d'équilibre",color = "blue")
+        plt.title("Détermination de la position d'équilibre",color = "darkcyan")
         plt.xlabel("Nombre d'itérations")
         plt.ylabel("Profondeur")
         self.canvas2.draw()
@@ -51,19 +59,22 @@ class Interface(QWidget):
 
 
         self.layout = QGridLayout()
-        self.setWindowTitle("Boat sinking interface")
-        self.setFixedSize(1300, 800)
+        self.setWindowTitle("Boat Sinking Interface")
+        self.setFixedSize(1380, 700)
         Icon = QIcon("Abeille_Bourbon.png")
         self.setWindowIcon(Icon)
 
 
         self.button1 = QPushButton("Lancer")
+        self.button1.setStyleSheet("QPushButton { font : 18pt ;color : white }")
+        #self.button1.setStyleSheet("QPushButton { color : blue }")
         self.button1.setFixedSize(200,100)
 
 
         self.layout.addWidget(self.button1,0,2,1,1)
         self.layout.addWidget(self.canvas,1,1,1,1)
         self.layout.addWidget(self.canvas2,1,2,1,1)
+
 
 
         self.button1.clicked.connect(self.buttonLoad3DClicked)
@@ -84,6 +95,7 @@ class Interface(QWidget):
         scale = self.__your_mesh.points.flatten("C")
 
         self.__ax.auto_scale_xyz(scale, scale, scale)
+        plt.title("Représentation 3D",color = "darkcyan")
         self.layout.addWidget(self.canvas,1,1,1,1)
 
         #2D
@@ -91,10 +103,10 @@ class Interface(QWidget):
         self.fig2 = plt.figure()
         self.canvas2 = FigureCanvas(self.fig2)
         self.__ax2 = plt.axes()
-        plt.title("Détermination de la position d'équilibre",color = "blue")
+        plt.title("Détermination de la position d'équilibre",color = "darkcyan")
         plt.xlabel("Nombre d'itérations")
         plt.ylabel("Profondeur")
-        self.__ax2.plot(self.__X, self.__Y, "b-x", color = "red")   #Tracé du graphique
+        self.__ax2.plot(self.__X, self.__Y, "b-x", color = "indianred")   #Tracé du graphique
         #self.canvas2.draw()
         self.layout.addWidget(self.canvas2,1,2,1,1)
 
@@ -109,6 +121,7 @@ class Parametres(QWidget) :
 
         self.setWindowTitle("Paramétrages")
         self.setFixedSize(400, 200)
+
 
         Icon = QIcon("Parametre.png")
         self.setWindowIcon(Icon)
@@ -135,6 +148,9 @@ class Parametres(QWidget) :
         self.deroulement.addItem("Abeille_Bourbon.stl")
         self.deroulement.addItem("Rectangle.stl")
         self.deroulement.addItem("Cylindre.stl")
+        self.deroulement.addItem("BargeAlu.stl")
+        self.deroulement.addItem("SousMarin.stl")
+        self.deroulement.addItem("Wigley.stl")
 
         self.edit2= QLineEdit()
         self.edit3= QLineEdit()
