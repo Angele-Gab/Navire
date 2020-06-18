@@ -7,11 +7,13 @@ from mpl_toolkits import mplot3d
 from matplotlib import pyplot
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
-from Clair import *
+from Calcul import *
 
 class Interface(QWidget):
     def __init__(self,stl,masse,epsilon,g):
         QWidget.__init__(self)
+
+        self.__stl = stl
 
 
         Fichier = Info_fichier_stl(stl)   #Récupération des données du fichier stl demandé
@@ -26,20 +28,19 @@ class Interface(QWidget):
 
         self.fig = plt.figure()
         self.canvas = FigureCanvas(self.fig)
-        self.canvaplan = FigureCanvas(self.fig)
         self.__ax = plt.axes(projection='3d')
 
-        self.__your_mesh = mesh.Mesh.from_file(stl)
+
+        self.__your_mesh = mesh.Mesh.from_file(self.__stl)
         self.__ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self.__your_mesh.vectors))
         scale = self.__your_mesh.points.flatten("C")
 
         self.__ax.auto_scale_xyz(scale, scale, scale)
         plt.title("Représentation 3D",color = "darkcyan")
-        self.canvaplan.draw()
         self.canvas.draw()
         self.canvas.setFixedSize(500,500)
-        #self.setStyleSheet("background-image: url(Fond2jpg.jpg)")
-        self.setStyleSheet("background-color: rgb(17,69,93);")
+
+        self.setStyleSheet("background-color: rgb(17,69,93);") #Changement de la couleur de fond
 
 
         #Partie 2D
@@ -95,6 +96,7 @@ class Interface(QWidget):
         scale = self.__your_mesh.points.flatten("C")
 
         self.__ax.auto_scale_xyz(scale, scale, scale)
+        #hfont = {'fontname':'Comic Sans MS'}
         plt.title("Représentation 3D",color = "darkcyan")
         self.layout.addWidget(self.canvas,1,1,1,1)
 
@@ -151,6 +153,7 @@ class Parametres(QWidget) :
         self.deroulement.addItem("BargeAlu.stl")
         self.deroulement.addItem("SousMarin.stl")
         self.deroulement.addItem("Wigley.stl")
+        self.deroulement.addItem("Mer.stl")
 
         self.edit2= QLineEdit()
         self.edit3= QLineEdit()

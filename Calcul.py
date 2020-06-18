@@ -82,15 +82,102 @@ class Calcul :
         Kx = 0
         Ky = 0
         Kz = 0
-        for i in range(0, len(self._normale)):
-            if facettes[i][0][2] <= 0 or facettes[i][1][2] <= 0 or facettes[i][2][2] <= 0:
 
+        for i in range(0, len(self._normale)):
+            a = facettes[i][0]
+            b = facettes[i][1]
+            c = facettes[i][2]
+            za = a[2]
+            zb = b[2]
+            zc = c[2]
+
+        # cas du calcul de la force sur une facette totalement immergée
+            if za <= 0 and zb <= 0 and zc <= 0:
                 Fk = self.Calculfacette(g,self._normale[i], facettes[i])
                 Kx += Fk[0]
                 Ky += Fk[1]
                 Kz += Fk[2]
+
+        #cas du calcul de la force sur une facette dont deux coins sont immergés (trois cas traités séparemment rendu possible parce que c'est un triangle. Point d'amélioration à traité avec plus de temps : automatisation du calcul)
+            elif za <= 0 and zb <= 0:
+                AzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][2])
+                BzO = self.calcul_point_sur_eau(facettes[i][1], facettes[i][2])
+                # triangle AzO A B
+                Fk1 = self.Calculfacette(g,self._normale[i], [AzO, a, b])
+                Kx += Fk1[0]
+                Ky += Fk1[1]
+                Kz += Fk1[2]
+                # triangle AzO BzO B
+                Fk2 = self.Calculfacette(g,self._normale[i], [AzO, BzO, b])
+                Kx += Fk2[0]
+                Ky += Fk2[1]
+                Kz += Fk2[2]
+
+            elif za <= 0 and zc <= 0:
+                AzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][1])
+                CzO = self.calcul_point_sur_eau(facettes[i][1], facettes[i][2])
+                # triangle AzO A C
+                Fk1 = self.Calculfacette(g,self._normale[i], [AzO, a, c])
+                Kx += Fk1[0]
+                Ky += Fk1[1]
+                Kz += Fk1[2]
+                # triangle AzO CzO C
+                Fk2 = self.Calculfacette(g,self._normale[i], [AzO, CzO, c])
+                Kx += Fk2[0]
+                Ky += Fk2[1]
+                Kz += Fk2[2]
+
+            elif zb <= 0 and zc <= 0:
+                CzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][2])
+                BzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][1])
+                # triangle CzO C B
+                Fk1 = self.Calculfacette(g,self._normale[i], [CzO, c, b])
+                Kx += Fk1[0]
+                Ky += Fk1[1]
+                Kz += Fk1[2]
+                # triangle CzO BzO B
+                Fk2 = self.Calculfacette(g,self._normale[i], [CzO, BzO, b])
+                Kx += Fk2[0]
+                Ky += Fk2[1]
+                Kz += Fk2[2]
+
+        # cas du calcul de la force sur une facette dont un coin est immergé (trois cas traités séparemment rendu possible parce que c'est un triangle. Point d'amélioration à traité avec plus de temps : automatisation du calcul)
+            elif za <= 0:
+                BzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][1])
+                CzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][2])
+                #triangle A BzO CzO
+                Fk = self.Calculfacette(g,self._normale[i], [a, BzO, CzO])
+                Kx += Fk[0]
+                Ky += Fk[1]
+                Kz += Fk[2]
+
+            elif zb <= 0:
+                AzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][1])
+                CzO = self.calcul_point_sur_eau(facettes[i][1], facettes[i][2])
+                #triangle B AzO CzO
+                Fk = self.Calculfacette(g,self._normale[i], [b, AzO, CzO])
+                Kx += Fk[0]
+                Ky += Fk[1]
+                Kz += Fk[2]
+
+            elif zc <= 0:
+                AzO = self.calcul_point_sur_eau(facettes[i][0], facettes[i][2])
+                BzO = self.calcul_point_sur_eau(facettes[i][1], facettes[i][2])
+                #triangle C AzO BzO
+                Fk = self.Calculfacette(g,self._normale[i], [c, AzO, BzO])
+                Kx += Fk[0]
+                Ky += Fk[1]
+                Kz += Fk[2]
+
+
         self._archimede = [Kx, Ky, Kz]
         return self._archimede    #Retourne les coordonnées de cette force
+
+
+    def calcul_point_sur_eau(self, A, B):
+        xD = ((B[0]-A[0])*(-A[2]))/(B[2]-A[2]) + A[0]
+        yD = ((B[1]-A[1])*(-A[2]))/(B[2]-A[2]) + A[1]
+        return [xD, yD, 0]
 
     #SIMULATION DE TRANSLATION SELON Z
 
@@ -156,7 +243,6 @@ class Calcul :
             i+=1
         X = X[1:]   #ON enlève le zéro d'initialisation
         Y = Y[1:]
-        print(mini)
 
         return mini,X,Y
 
@@ -167,7 +253,7 @@ class Calcul :
 #programme principal
 #print(CalculFfacette(np.array([0, 1, 0]), np.array([0, 0, 0]), np.array([1, 0, 0]), np.array([0, 0, 1])))
 #Lire_Stl(r"V_HULL.stl")
-#Bateau = Info_fichier_stl("Cylindre.stl")
+#Bateau = Info_fichier_stl("Rectangular_HULL_Normals_Outward.stl")
 #Bateau2 = Info_fichier_stl("V_HULL_modif_toutes_coordonnees.stl")
 #print(Bateau.Translation(-1))
 #print(Bateau.Calculfacettes(Bateau.getf()))
@@ -176,5 +262,5 @@ class Calcul :
 #print(Calcul1.Calculfacette(Bateau.getn()[0],Bateau.getf()[0]))
 #print(Bateau.getn()[0]) #On a que le vecteur grace à l'indice
 #print(Bateau.getf()[0][0])
-#Calcul1.Dichotomie(9.81,4000, 0.002)
+#print(Calcul1.Dichotomie(9.81,4000, 0.002))
 
