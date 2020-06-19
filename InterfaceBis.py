@@ -32,7 +32,7 @@ class Interface(QWidget):     #Classe de la deuxième IHM ouverte
         self.__ax = plt.axes(projection='3d')
 
 
-        self.__your_mesh = mesh.Mesh.from_file(self.__stl)
+        self.__your_mesh = mesh.Mesh.from_file(self.__stl)    #SOURCE : https://w.wol.ph/2015/07/10/rendering-stl-files-matplotlib-numpy-stl/
         self.__ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self.__your_mesh.vectors))
         scale = self.__your_mesh.points.flatten("C")
 
