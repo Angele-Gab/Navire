@@ -156,7 +156,13 @@ class Parametres(QWidget) :    #Classe de la première IHM
         self.deroulement.addItem("BargeAlu.stl")
         self.deroulement.addItem("SousMarin.stl")
         self.deroulement.addItem("Wigley.stl")
-        #self.deroulement.addItem("Mer.stl")
+        self.deroulement.addItem("TriEqui_INCLINE.stl")
+        self.deroulement.addItem("TriEquiHoriz_Z=0.stl")
+        self.deroulement.addItem("TriEquiHoriz_Z=-2.stl")
+        self.deroulement.addItem("TriRectHoriz_Z=0.stl")
+        self.deroulement.addItem("TriRectHoriz_Z=-1.stl")
+        self.deroulement.addItem("TriRect_INCLINE.stl")
+
 
         self.edit2= QLineEdit()     #Permet à l'utilisateur d'entrer les valeurs désirées
         self.edit3= QLineEdit()
